@@ -8,31 +8,22 @@
     <style>
         :root { --bg: #0a0a0a; --card: #121212; --accent: #3498db; --text: #eee; }
         body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; overflow: hidden; }
-        
         .cursor-highlight { width: 450px; height: 450px; background: radial-gradient(circle, rgba(255, 0, 0, 0.07) 0%, rgba(255, 0, 0, 0) 70%); border-radius: 50%; position: fixed; pointer-events: none; transform: translate(-50%, -50%); z-index: 0; }
-        
         .main-card { width: 400px; background: var(--card); border-radius: 24px; border: 1px solid #1f1f1f; z-index: 1; position: relative; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.7); }
-        
         .banner { height: 100px; background: #1f2a5e; width: 100%; transition: background 0.8s ease; }
-        
         .profile-content { padding: 0 25px 25px; text-align: center; margin-top: -50px; }
         .pfp-container { position: relative; display: inline-block; }
-        
         .avatar { width: 100px; height: 100px; border-radius: 50%; border: 6px solid var(--card); background: #222; object-fit: cover; }
         .status-dot { width: 22px; height: 22px; border-radius: 50%; border: 4px solid var(--card); position: absolute; bottom: 6px; right: 6px; background: #747f8d; transition: background 0.3s; }
-        
         .custom-status { background: #1a1a1a; padding: 6px 14px; border-radius: 12px; font-size: 12px; display: inline-block; margin-top: 12px; border: 1px solid #252525; color: #bbb; }
-        
         .username { font-size: 26px; font-weight: 800; margin: 15px 0 2px; letter-spacing: -0.5px; }
         .handle { color: #666; font-size: 14px; margin-bottom: 12px; }
         .bio { font-size: 14px; color: #999; margin-bottom: 20px; line-height: 1.5; }
-        
         .links { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .btn { background: #1a1a1a; padding: 12px; border-radius: 12px; text-decoration: none; color: #aaa; font-size: 13px; border: 1px solid #222; transition: 0.2s; text-align: center; font-weight: 500; display: flex; align-items: center; justify-content: center; gap: 8px; }
         .btn i { font-size: 16px; }
         .btn:hover { background: #222; color: #fff; transform: translateY(-2px); border-color: #333; }
         .btn-full { grid-column: span 2; }
-
         .activity-card { margin: 20px 25px 25px; background: #0f0f0f; border-radius: 18px; padding: 15px; display: flex; align-items: center; gap: 15px; border: 1px solid #1a1a1a; min-height: 90px; }
         .activity-art { width: 60px; height: 60px; border-radius: 12px; background: #222; background-size: cover; background-position: center; border: 1px solid #222; flex-shrink: 0; }
         .activity-info { text-align: left; overflow: hidden; }
@@ -42,26 +33,18 @@
     </style>
 </head>
 <body>
-
     <div class="cursor-highlight"></div>
-
     <div class="main-card">
-        <div class="banner" id="banner"></div>
-        
+        <div class="banner"></div>
         <div class="profile-content">
             <div class="pfp-container">
                 <img id="pfp" src="tanjiro-kamado-480x800-23027.jpg" class="avatar">
                 <div id="status" class="status-dot"></div>
             </div>
-            
-            <div id="custom-status-wrap" style="display:none;">
-                <div class="custom-status" id="custom-status"></div>
-            </div>
-
+            <div id="custom-status-wrap" style="display:none;"><div class="custom-status" id="custom-status"></div></div>
             <div class="username" id="display-name">flaxerrr</div>
             <div class="handle" id="user-handle">@flaxerrr</div>
             <div class="bio" id="user-bio">tiktoker</div>
-
             <div class="links">
                 <a href="https://discord.gg/jV7QfZutEu" class="btn"><i class="fa-brands fa-discord"></i> Discord</a>
                 <a href="https://github.com/Doreoplayz102/" class="btn"><i class="fa-brands fa-github"></i> Github</a>
@@ -70,13 +53,12 @@
                 <a href="https://www.tiktok.com/@flaxerrr?_r=1&_t=ZP-95VM8WcJlVO" class="btn btn-full"><i class="fa-brands fa-tiktok"></i> TikTok</a>
             </div>
         </div>
-
         <div class="activity-card">
             <div class="activity-art" id="act-art"></div>
             <div class="activity-info">
                 <div class="activity-label" id="act-label">Activity</div>
                 <div class="activity-name" id="act-name">Connecting...</div>
-                <div class="activity-details" id="act-detail">Fetching Discord presence</div>
+                <div class="activity-details" id="act-detail">Fetching Discord...</div>
             </div>
         </div>
     </div>
@@ -84,31 +66,34 @@
     <script>
         const USER_ID = "1344178421235978250";
         const highlight = document.querySelector('.cursor-highlight');
-
-        window.addEventListener('mousemove', (e) => {
-            highlight.animate({ left: `${e.clientX}px`, top: `${e.clientY}px` }, { duration: 600, fill: "forwards" });
-        });
+        window.addEventListener('mousemove', (e) => { highlight.animate({ left: `${e.clientX}px`, top: `${e.clientY}px` }, { duration: 600, fill: "forwards" }); });
 
         async function updateLanyard() {
             try {
                 const res = await fetch(`https://api.lanyard.rest/v1/users/${USER_ID}`);
                 const { data } = await res.json();
-                
                 const user = data.discord_user;
+
+                // 1. Update Profile Info & PFP
                 document.getElementById('display-name').innerText = user.global_name || user.username;
                 document.getElementById('user-handle').innerText = `@${user.username}`;
-                
+                if (user.avatar) {
+                    const ext = user.avatar.startsWith('a_') ? 'gif' : 'png';
+                    document.getElementById('pfp').src = `https://cdn.discordapp.com/avatars/${USER_ID}/${user.avatar}.${ext}?size=256`;
+                }
+
+                // 2. Status Dot
                 const colors = { online: '#43b581', idle: '#faa61a', dnd: '#f04747', offline: '#747f8d' };
                 document.getElementById('status').style.backgroundColor = colors[data.discord_status] || '#747f8d';
 
+                // 3. Custom Status
                 const custom = data.activities.find(a => a.type === 4);
                 if (custom && custom.state) {
                     document.getElementById('custom-status-wrap').style.display = 'block';
                     document.getElementById('custom-status').innerText = custom.state;
-                } else {
-                    document.getElementById('custom-status-wrap').style.display = 'none';
-                }
+                } else { document.getElementById('custom-status-wrap').style.display = 'none'; }
 
+                // 4. Activity Display
                 const label = document.getElementById('act-label');
                 const name = document.getElementById('act-name');
                 const detail = document.getElementById('act-detail');
@@ -126,30 +111,24 @@
                         label.innerText = "Playing a Game";
                         name.innerText = game.name;
                         detail.innerText = game.details || "In-game";
-                        
-                        // Gets the icon from the game activity
                         if (game.assets && game.assets.large_image) {
-                            if (game.assets.large_image.startsWith("mp:external")) {
-                                art.style.backgroundImage = `url(https://media.discordapp.net/${game.assets.large_image.replace("mp:", "")})`;
+                            let imgUrl = game.assets.large_image;
+                            if (imgUrl.startsWith("mp:external")) {
+                                art.style.backgroundImage = `url(https://media.discordapp.net/${imgUrl.replace("mp:", "")})`;
                             } else {
-                                art.style.backgroundImage = `url(https://cdn.discordapp.com/app-assets/${game.application_id}/${game.assets.large_image}.png)`;
+                                art.style.backgroundImage = `url(https://cdn.discordapp.com/app-assets/${game.application_id}/${imgUrl}.png)`;
                             }
                             art.style.display = "block";
-                        } else {
-                            art.style.backgroundImage = "none";
-                            art.style.display = "none"; // Hide if no icon
-                        }
+                        } else { art.style.display = "none"; }
                     } else {
                         label.innerText = "Current Status";
                         name.innerText = "Not playing anything";
-                        detail.innerText = "Chilling on Discord";
-                        art.style.backgroundImage = "none";
+                        detail.innerText = "Chilling";
                         art.style.display = "none";
                     }
                 }
             } catch (e) { console.error("Lanyard error:", e); }
         }
-
         setInterval(updateLanyard, 5000);
         updateLanyard();
     </script>
