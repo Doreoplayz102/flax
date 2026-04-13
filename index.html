@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ryuulol | Link-in-Bio</title>
+    <style>
+        :root { --bg: #0d0d0d; --card: #161616; --accent: #3498db; --text: #efefef; }
+        
+        body { 
+            background: var(--bg); 
+            color: var(--text); 
+            font-family: 'Inter', -apple-system, sans-serif; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        /* Red Mouse Highlight */
+        .cursor-highlight {
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(255, 0, 0, 0.08) 0%, rgba(255, 0, 0, 0) 70%);
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            transform: translate(-50%, -50%);
+            z-index: 0;
+            left: -500px; /* Initial off-screen */
+        }
+
+        .container { width: 100%; max-width: 400px; z-index: 1; position: relative; }
+
+        .profile-card { 
+            background: var(--card); 
+            padding: 40px 30px; 
+            border-radius: 28px; 
+            text-align: center;
+            border: 1px solid #222;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .avatar { 
+            width: 110px; 
+            height: 110px; 
+            border-radius: 50%; 
+            border: 2px solid var(--accent); 
+            margin-bottom: 15px; 
+            object-fit: cover;
+            background: #222;
+        }
+
+        .username { margin: 0; color: var(--accent); font-size: 24px; }
+        .bio { color: #888; margin: 8px 0 0; font-size: 14px; line-height: 1.4; }
+
+        .links { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 25px; }
+        
+        .btn { 
+            background: #222; 
+            padding: 12px; 
+            border-radius: 12px; 
+            text-decoration: none; 
+            color: #bbb; 
+            font-size: 14px; 
+            transition: all 0.2s ease;
+            border: 1px solid transparent;
+        }
+        
+        .btn:hover { background: #2a2a2a; color: white; border-color: #444; transform: translateY(-2px); }
+
+        .music-card { 
+            background: var(--card); 
+            padding: 20px; 
+            border-radius: 24px; 
+            margin-top: 20px; 
+            text-align: left;
+            border: 1px solid #222;
+        }
+
+        .now-playing-label { color: #ff4757; font-size: 10px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 12px; }
+        .track-flex { display: flex; align-items: center; gap: 15px; }
+        .track-art { width: 64px; height: 64px; border-radius: 12px; background: #222; background-size: cover; background-position: center; }
+    </style>
+</head>
+<body>
+
+    <div class="cursor-highlight"></div>
+
+    <div class="container">
+        <div class="profile-card">
+            <img id="discord-pfp" src="" class="avatar" alt="Loading...">
+            <h2 id="discord-user" class="username">Loading...</h2>
+            <p id="discord-bio" class="bio">Connecting to Discord presence...</p>
+            <div class="links">
+                <a href="https://discord.com" class="btn">Discord</a>
+                <a href="https://github.com" class="btn">Github</a>
+                <a href="https://roblox.com" class="btn">Roblox</a>
+                <a href="#" class="btn">Projects</a>
+            </div>
+        </div>
+
+        <div class="music-card">
+            <div id="status-label" class="now-playing-label">Offline</div>
+            <div class="track-flex">
+                <div class="track-art" id="track-art"></div>
+                <div>
+                    <div id="track-name" style="font-weight: bold; font-size: 15px;">Silence</div>
+                    <div id="artist-name" style="font-size: 13px; color: #777;">No active track</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const USER_ID = "1344178421235978250";
+        const highlight = document.querySelector('.cursor-highlight');
+
+        // Mouse movement logic
+        window.addEventListener('mousemove', (e) => {
+            highlight.animate({
+                left: `${e.clientX}px`,
+                top: `${e.clientY}px`
+            }, { duration: 600, fill: "forwards" });
+        });
+
+        async function updateLanyard() {
+            try {
+                const response = await fetch(`https://api.lanyard.rest/v1/users/${USER_ID}`);
+                const { data } = await response.json();
+                
+                // Update Profile Info
+                const pfp = document.getElementById('discord-pfp');
+                const user = document.getElementById('discord-user');
+                const bio = document.getElementById('discord-bio');
+
+                const avatarHash = data.discord_user.avatar;
+                pfp.src = `https://cdn.discordapp.com/avatars/${USER_ID}/${avatarHash}.${avatarHash.startsWith('a_') ? 'gif' : 'png'}?size=256`;
+                user.innerText = data.discord_user.global_name || data.discord_user.username;
+                
+                // Lanyard provides custom bio if set in their KV or if status exists
+                bio.innerText = data.kv?.bio || "Currently exploring the web.";
+
+                // Update Spotify Status
+                const label = document.getElementById('status-label');
+                const tName = document.getElementById('track-name');
+                const aName = document.getElementById('artist-name');
+                const art = document.getElementById('track-art');
+
+                if (data.spotify) {
+                    label.innerText = "now playing";
+                    label.style.color = "#1DB954"; // Spotify Green
+                    tName.innerText = data.spotify.track;
+                    aName.innerText = data.spotify.artist;
+                    art.style.backgroundImage = `url(${data.spotify.album_art_url})`;
+                } else {
+                    label.innerText = "offline";
+                    label.style.color = "#ff4757";
+                    tName.innerText = "Silence";
+                    aName.innerText = "No active music";
+                    art.style.backgroundImage = "none";
+                    art.style.backgroundColor = "#222";
+                }
+            } catch (err) {
+                console.error("Lanyard Error:", err);
+            }
+        }
+
+        // Fetch on load and every 5 seconds
+        updateLanyard();
+        setInterval(updateLanyard, 5000);
+    </script>
+</body>
+</html>
