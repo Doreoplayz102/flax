@@ -13,7 +13,7 @@
         .banner { height: 100px; background: #1f2a5e; width: 100%; transition: background 0.8s ease; }
         .profile-content { padding: 0 25px 25px; text-align: center; margin-top: -50px; }
         .pfp-container { position: relative; display: inline-block; }
-        .avatar { width: 100px; height: 100px; border-radius: 50%; border: 6px solid var(--card); background: #222; object-fit: cover; }
+        .avatar { width: 100px; height: 100px; border-radius: 50%; border: 6px solid var(--card); background: #222; object-fit: cover; transition: opacity 0.3s ease; }
         .status-dot { width: 22px; height: 22px; border-radius: 50%; border: 4px solid var(--card); position: absolute; bottom: 6px; right: 6px; background: #747f8d; transition: background 0.3s; }
         .custom-status { background: #1a1a1a; padding: 6px 14px; border-radius: 12px; font-size: 12px; display: inline-block; margin-top: 12px; border: 1px solid #252525; color: #bbb; }
         .username { font-size: 26px; font-weight: 800; margin: 15px 0 2px; letter-spacing: -0.5px; }
@@ -53,12 +53,12 @@
                 <a href="https://www.tiktok.com/@flaxerrr?_r=1&_t=ZP-95VM8WcJlVO" class="btn btn-full"><i class="fa-brands fa-tiktok"></i> TikTok</a>
             </div>
         </div>
-        <div class="activity-card">
+        <div class="activity-card" id="activity-card">
             <div class="activity-art" id="act-art"></div>
             <div class="activity-info">
                 <div class="activity-label" id="act-label">Activity</div>
                 <div class="activity-name" id="act-name">Connecting...</div>
-                <div class="activity-details" id="act-detail">Fetching Discord...</div>
+                <div class="activity-details" id="act-detail">Fetching Discord presence</div>
             </div>
         </div>
     </div>
@@ -74,15 +74,18 @@
                 const { data } = await res.json();
                 const user = data.discord_user;
 
-                // 1. Update Profile Info & PFP
+                // 1. Update Profile & PFP
                 document.getElementById('display-name').innerText = user.global_name || user.username;
                 document.getElementById('user-handle').innerText = `@${user.username}`;
+                
+                const pfp = document.getElementById('pfp');
                 if (user.avatar) {
                     const ext = user.avatar.startsWith('a_') ? 'gif' : 'png';
-                    document.getElementById('pfp').src = `https://cdn.discordapp.com/avatars/${USER_ID}/${user.avatar}.${ext}?size=256`;
+                    const newAvatar = `https://cdn.discordapp.com/avatars/${USER_ID}/${user.avatar}.${ext}?size=256`;
+                    if (pfp.src !== newAvatar) pfp.src = newAvatar;
                 }
 
-                // 2. Status Dot
+                // 2. Status
                 const colors = { online: '#43b581', idle: '#faa61a', dnd: '#f04747', offline: '#747f8d' };
                 document.getElementById('status').style.backgroundColor = colors[data.discord_status] || '#747f8d';
 
@@ -93,13 +96,13 @@
                     document.getElementById('custom-status').innerText = custom.state;
                 } else { document.getElementById('custom-status-wrap').style.display = 'none'; }
 
-                // 4. Activity Display
+                // 4. Activity
                 const label = document.getElementById('act-label');
                 const name = document.getElementById('act-name');
                 const detail = document.getElementById('act-detail');
                 const art = document.getElementById('act-art');
 
-                if (data.spotify) {
+                if (data.listening_to_spotify && data.spotify) {
                     label.innerText = "Listening to Spotify";
                     name.innerText = data.spotify.track;
                     detail.innerText = `by ${data.spotify.artist}`;
@@ -108,9 +111,10 @@
                 } else {
                     const game = data.activities.find(a => a.type === 0);
                     if (game) {
-                        label.innerText = "Playing a Game";
-                        name.innerText = game.name;
-                        detail.innerText = game.details || "In-game";
+                        label.innerText = "Playing " + game.name;
+                        name.innerText = game.details || "In-game";
+                        detail.innerText = game.state || "";
+                        
                         if (game.assets && game.assets.large_image) {
                             let imgUrl = game.assets.large_image;
                             if (imgUrl.startsWith("mp:external")) {
