@@ -6,61 +6,40 @@
     <title>flaxerrr | hub</title>
     <style>
         :root { --bg: #0a0a0a; --card: #121212; --accent: #3498db; --text: #eee; }
+        body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; overflow: hidden; }
         
-        body { 
-            background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; 
-            display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; overflow: hidden;
-        }
-
-        .cursor-highlight {
-            width: 450px; height: 450px; background: radial-gradient(circle, rgba(255, 0, 0, 0.07) 0%, rgba(255, 0, 0, 0) 70%);
-            border-radius: 50%; position: fixed; pointer-events: none; transform: translate(-50%, -50%); z-index: 0;
-        }
-
-        .main-card { 
-            width: 400px; background: var(--card); border-radius: 24px; border: 1px solid #1f1f1f; 
-            z-index: 1; position: relative; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.7);
-        }
-
-        .banner { height: 100px; background: #5865F2; width: 100%; transition: background 0.5s; }
-
+        .cursor-highlight { width: 450px; height: 450px; background: radial-gradient(circle, rgba(255, 0, 0, 0.07) 0%, rgba(255, 0, 0, 0) 70%); border-radius: 50%; position: fixed; pointer-events: none; transform: translate(-50%, -50%); z-index: 0; }
+        
+        .main-card { width: 400px; background: var(--card); border-radius: 24px; border: 1px solid #1f1f1f; z-index: 1; position: relative; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.7); }
+        
+        .banner { height: 100px; background: #1f2a5e; width: 100%; transition: background 0.8s ease; }
+        
         .profile-content { padding: 0 25px 25px; text-align: center; margin-top: -50px; }
-
         .pfp-container { position: relative; display: inline-block; }
+        
         .avatar { 
             width: 100px; height: 100px; border-radius: 50%; border: 6px solid var(--card); 
-            background: #222; object-fit: cover;
-        }
-        .status-dot {
-            width: 20px; height: 20px; border-radius: 50%; border: 4px solid var(--card);
-            position: absolute; bottom: 8px; right: 8px; background: #747f8d;
+            background: #222; object-fit: cover; transition: opacity 0.5s ease;
         }
 
-        .custom-status {
-            background: #1a1a1a; padding: 6px 12px; border-radius: 12px; font-size: 12px;
-            display: inline-block; margin-top: 10px; border: 1px solid #252525; color: #bbb;
-        }
-
-        .username { font-size: 26px; font-weight: 800; margin: 15px 0 2px; }
-        .handle { color: #666; font-size: 14px; margin-bottom: 10px; }
-        .bio { font-size: 14px; color: #999; margin-bottom: 20px; }
-
+        .status-dot { width: 22px; height: 22px; border-radius: 50%; border: 4px solid var(--card); position: absolute; bottom: 6px; right: 6px; background: #747f8d; transition: background 0.3s; }
+        
+        .custom-status { background: #1a1a1a; padding: 6px 14px; border-radius: 12px; font-size: 12px; display: inline-block; margin-top: 12px; border: 1px solid #252525; color: #bbb; }
+        
+        .username { font-size: 26px; font-weight: 800; margin: 15px 0 2px; letter-spacing: -0.5px; }
+        .handle { color: #666; font-size: 14px; margin-bottom: 12px; }
+        .bio { font-size: 14px; color: #999; margin-bottom: 20px; line-height: 1.5; }
+        
         .links { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .btn { 
-            background: #1a1a1a; padding: 12px; border-radius: 12px; text-decoration: none; 
-            color: #aaa; font-size: 13px; border: 1px solid #222; transition: 0.2s;
-        }
-        .btn:hover { background: #222; color: #fff; transform: translateY(-2px); }
-
-        .activity-card { 
-            margin: 20px 25px 25px; background: #0f0f0f; border-radius: 18px; 
-            padding: 15px; display: flex; align-items: center; gap: 15px; border: 1px solid #1a1a1a;
-        }
-        .activity-art { width: 55px; height: 55px; border-radius: 10px; background: #222; background-size: cover; }
-        .activity-info { text-align: left; }
-        .activity-label { font-size: 10px; font-weight: 900; color: #ff4757; text-transform: uppercase; margin-bottom: 4px; }
-        .activity-name { font-size: 14px; font-weight: 700; color: #eee; }
-        .activity-details { font-size: 12px; color: #777; }
+        .btn { background: #1a1a1a; padding: 12px; border-radius: 12px; text-decoration: none; color: #aaa; font-size: 13px; border: 1px solid #222; transition: 0.2s; text-align: center; font-weight: 500; }
+        .btn:hover { background: #222; color: #fff; transform: translateY(-2px); border-color: #333; }
+        
+        .activity-card { margin: 20px 25px 25px; background: #0f0f0f; border-radius: 18px; padding: 15px; display: flex; align-items: center; gap: 15px; border: 1px solid #1a1a1a; }
+        .activity-art { width: 60px; height: 60px; border-radius: 12px; background: #222; background-size: cover; background-position: center; border: 1px solid #222; }
+        .activity-info { text-align: left; overflow: hidden; }
+        .activity-label { font-size: 10px; font-weight: 900; color: #ff4757; text-transform: uppercase; margin-bottom: 4px; letter-spacing: 1px; }
+        .activity-name { font-size: 14px; font-weight: 700; color: #eee; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .activity-details { font-size: 12px; color: #777; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     </style>
 </head>
 <body>
@@ -72,7 +51,7 @@
         
         <div class="profile-content">
             <div class="pfp-container">
-                <img id="pfp" src="https://github.com/identicons/flaxerrr.png" class="avatar">
+                <img id="pfp" src="tanjiro-kamado-480x800-23027.jpg" class="avatar">
                 <div id="status" class="status-dot"></div>
             </div>
             
@@ -92,12 +71,12 @@
             </div>
         </div>
 
-        <div class="activity-card" id="activity-section">
+        <div class="activity-card">
             <div class="activity-art" id="act-art"></div>
             <div class="activity-info">
-                <div class="activity-label" id="act-label">Now Playing</div>
-                <div class="activity-name" id="act-name">Nothing active</div>
-                <div class="activity-details" id="act-detail">Listening to silence</div>
+                <div class="activity-label" id="act-label">Activity</div>
+                <div class="activity-name" id="act-name">Connecting...</div>
+                <div class="activity-details" id="act-detail">Fetching Discord presence</div>
             </div>
         </div>
     </div>
@@ -110,55 +89,68 @@
             highlight.animate({ left: `${e.clientX}px`, top: `${e.clientY}px` }, { duration: 600, fill: "forwards" });
         });
 
-        async function fetchDiscord() {
+        async function updateLanyard() {
             try {
                 const res = await fetch(`https://api.lanyard.rest/v1/users/${USER_ID}`);
                 const { data } = await res.json();
                 
-                // 1. Profile Data
+                // 1. Profile PFP & Info
                 const user = data.discord_user;
+                const pfp = document.getElementById('pfp');
+                const banner = document.getElementById('banner');
+
                 document.getElementById('display-name').innerText = user.global_name || user.username;
                 document.getElementById('user-handle').innerText = `@${user.username}`;
                 
-                const avatarUrl = `https://cdn.discordapp.com/avatars/${USER_ID}/${user.avatar}.${user.avatar.startsWith('a_') ? 'gif' : 'png'}?size=256`;
-                document.getElementById('pfp').src = avatarUrl;
+                // Update PFP to active Discord one (supports GIFs)
+                if (user.avatar) {
+                    const ext = user.avatar.startsWith('a_') ? 'gif' : 'png';
+                    pfp.src = `https://cdn.discordapp.com/avatars/${USER_ID}/${user.avatar}.${ext}?size=256`;
+                }
 
                 // 2. Status Dot
-                const statusColors = { online: '#43b581', idle: '#faa61a', dnd: '#f04747', offline: '#747f8d' };
-                document.getElementById('status').style.backgroundColor = statusColors[data.discord_status] || '#747f8d';
+                const colors = { online: '#43b581', idle: '#faa61a', dnd: '#f04747', offline: '#747f8d' };
+                document.getElementById('status').style.backgroundColor = colors[data.discord_status] || '#747f8d';
 
-                // 3. Custom Status (The "monke's" bubble)
+                // 3. Custom Status Bubble
                 const custom = data.activities.find(a => a.type === 4);
                 if (custom && custom.state) {
                     document.getElementById('custom-status-wrap').style.display = 'block';
                     document.getElementById('custom-status').innerText = custom.state;
+                } else {
+                    document.getElementById('custom-status-wrap').style.display = 'none';
                 }
 
-                // 4. Activity/Spotify Logic
-                const actArt = document.getElementById('act-art');
-                const actName = document.getElementById('act-name');
-                const actDetail = document.getElementById('act-detail');
-                const actLabel = document.getElementById('act-label');
+                // 4. Activity Display
+                const label = document.getElementById('act-label');
+                const name = document.getElementById('act-name');
+                const detail = document.getElementById('act-detail');
+                const art = document.getElementById('act-art');
 
                 if (data.spotify) {
-                    actLabel.innerText = "Listening to Spotify";
-                    actName.innerText = data.spotify.track;
-                    actDetail.innerText = `by ${data.spotify.artist}`;
-                    actArt.style.backgroundImage = `url(${data.spotify.album_art_url})`;
-                } else if (data.activities.length > 0) {
+                    label.innerText = "Listening to Spotify";
+                    name.innerText = data.spotify.track;
+                    detail.innerText = `by ${data.spotify.artist}`;
+                    art.style.backgroundImage = `url(${data.spotify.album_art_url})`;
+                } else {
                     const game = data.activities.find(a => a.type === 0);
                     if (game) {
-                        actLabel.innerText = "Playing a Game";
-                        actName.innerText = game.name;
-                        actDetail.innerText = game.details || "In-game";
-                        actArt.style.backgroundImage = `url(https://cdn.discordapp.com/app-assets/${game.application_id}/${game.assets.large_image}.png)`;
+                        label.innerText = "Playing a Game";
+                        name.innerText = game.name;
+                        detail.innerText = game.details || "In-game";
+                        art.style.backgroundImage = game.assets ? `url(https://cdn.discordapp.com/app-assets/${game.application_id}/${game.assets.large_image}.png)` : 'none';
+                    } else {
+                        label.innerText = "Current Status";
+                        name.innerText = "Not playing anything";
+                        detail.innerText = "Chilling on Discord";
+                        art.style.backgroundImage = 'none';
                     }
                 }
-            } catch (e) { console.error(e); }
+            } catch (e) { console.error("Lanyard connection issue:", e); }
         }
 
-        setInterval(fetchDiscord, 5000);
-        fetchDiscord();
+        setInterval(updateLanyard, 5000);
+        updateLanyard();
     </script>
 </body>
 </html>
