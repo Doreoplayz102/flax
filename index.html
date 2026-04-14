@@ -21,8 +21,7 @@
         .btn:hover { background: #222; color: #fff; transform: translateY(-2px); }
         .btn-full { grid-column: span 2; }
         .activity-card { margin: 20px 25px 25px; background: #0f0f0f; border-radius: 18px; padding: 15px; display: flex; align-items: center; gap: 15px; border: 1px solid #1a1a1a; min-height: 90px; }
-        .activity-art { width: 60px; height: 60px; border-radius: 12px; background: #222; background-size: cover; background-position: center; flex-shrink: 0; display: none; }
-        .activity-info { text-align: left; overflow: hidden; }
+        .activity-art { width: 60px; height: 60px; border-radius: 12px; background: #222; background-size: cover; background-position: center; flex-shrink: 0; display: none; border: 1px solid #222; }
         .activity-label { font-size: 10px; font-weight: 900; color: #ff4757; text-transform: uppercase; margin-bottom: 4px; }
         .activity-name { font-size: 14px; font-weight: 700; color: #eee; }
         .activity-details { font-size: 12px; color: #777; }
@@ -67,11 +66,13 @@
                 const res = await fetch(`https://api.lanyard.rest/v1/users/${USER_ID}?t=${Date.now()}`);
                 const { data } = await res.json();
                 
+                // PFP Update
                 if (data.discord_user.avatar) {
                     const ext = data.discord_user.avatar.startsWith('a_') ? 'gif' : 'png';
                     document.getElementById('pfp').src = `https://cdn.discordapp.com/avatars/${USER_ID}/${data.discord_user.avatar}.${ext}?size=256`;
                 }
 
+                // Status Update
                 const colors = { online: '#43b581', idle: '#faa61a', dnd: '#f04747', offline: '#747f8d' };
                 document.getElementById('status').style.backgroundColor = colors[data.discord_status] || '#747f8d';
 
@@ -90,24 +91,28 @@
                     const game = data.activities.find(x => x.type === 0);
                     if (game) {
                         art.style.display = "block";
-                        label.innerText = "Playing a Game";
-                        name.innerText = game.name;
-                        detail.innerText = game.details || "In-game";
+                        label.innerText = "Playing " + game.name;
+                        name.innerText = game.details || "In-game";
+                        detail.innerText = game.state || "";
 
-                        // Image Logic with Google fallback icons
+                        // Game Icon Logic
+                        let iconSet = false;
                         if (game.assets && game.assets.large_image) {
                             const img = game.assets.large_image;
                             const imgUrl = img.startsWith('mp:') ? `https://media.discordapp.net/${img.replace('mp:', '')}` : `https://cdn.discordapp.com/app-assets/${game.application_id}/${img}.png`;
                             art.style.backgroundImage = `url(${imgUrl})`;
-                        } else {
-                            // Manual Fallbacks for missing assets
-                            const gameName = game.name.toLowerCase();
-                            if (gameName.includes("roblox")) {
-                                art.style.backgroundImage = `url(https://upload.wikimedia.org/wikipedia/commons/3/3a/Roblox_player_icon_black.svg)`;
-                            } else if (gameName.includes("minecraft")) {
-                                art.style.backgroundImage = `url(https://upload.wikimedia.org/wikipedia/en/5/51/Minecraft_cover.png)`;
-                            } else if (gameName.includes("fortnite")) {
-                                art.style.backgroundImage = `url(https://upload.wikimedia.org/wikipedia/commons/thumb/0/07/Fortnite_logo.svg/512px-Fortnite_logo.svg.png)`;
+                            iconSet = true;
+                        } 
+                        
+                        // Fallback Icons from Google/Wiki for specific games
+                        if (!iconSet || art.style.backgroundImage.includes("undefined")) {
+                            const gameLower = game.name.toLowerCase();
+                            if (gameLower.includes("roblox")) {
+                                art.style.backgroundImage = "url('https://upload.wikimedia.org/wikipedia/commons/3/3a/Roblox_player_icon_black.svg')";
+                            } else if (gameLower.includes("minecraft")) {
+                                art.style.backgroundImage = "url('https://upload.wikimedia.org/wikipedia/en/5/51/Minecraft_cover.png')";
+                            } else if (gameLower.includes("fortnite")) {
+                                art.style.backgroundImage = "url('https://upload.wikimedia.org/wikipedia/commons/7/7c/Fortnite_F_lettermark_logo.png')";
                             } else {
                                 art.style.display = "none";
                             }
@@ -116,7 +121,7 @@
                         art.style.display = "none";
                         label.innerText = "Activity";
                         name.innerText = "Chilling";
-                        detail.innerText = "No active activity";
+                        detail.innerText = "Not doing much";
                     }
                 }
             } catch (e) { console.error("Lanyard Error"); }
